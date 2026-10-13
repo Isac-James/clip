@@ -23,6 +23,7 @@ import { CaptionEditor } from "./components/CaptionEditor";
 import { ViralityAuditModal } from "./components/ViralityAuditModal";
 import { ExportModal } from "./components/ExportModal";
 import { ClipData, EditingSettings, CaptionWord } from "./types";
+import { generateSmartFallbackClips } from "./utils/fallbackMoments";
 
 export default function App() {
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -124,16 +125,27 @@ export default function App() {
         }),
       });
 
+      if (!response.ok) {
+        throw new Error(`Server returned ${response.status}`);
+      }
+
       const resData = await response.json();
-      if (resData.success && resData.data?.clips) {
+      if (resData.success && resData.data?.clips && resData.data.clips.length > 0) {
         const foundClips: ClipData[] = resData.data.clips;
         setClips(foundClips);
-        if (foundClips.length > 0) {
-          setActiveClipId(foundClips[0].id);
-        }
+        setActiveClipId(foundClips[0].id);
+      } else {
+        const fallbackClips = generateSmartFallbackClips(title, duration, "raw-podcast");
+        setClips(fallbackClips);
+        setActiveClipId(fallbackClips[0].id);
       }
     } catch (err) {
-      console.error("Auto clip error:", err);
+      console.warn("Auto clip network/server warning, using high-retention fallback:", err);
+      const fallbackClips = generateSmartFallbackClips(title, duration, "raw-podcast");
+      setClips(fallbackClips);
+      if (fallbackClips.length > 0) {
+        setActiveClipId(fallbackClips[0].id);
+      }
     } finally {
       setIsAnalyzing(false);
       setAnalysisStep("");
