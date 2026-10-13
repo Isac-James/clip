@@ -1,0 +1,6 @@
+{
+  "name": "RawClip AI Studio - Viral Moment Video Clipper",
+  "description": "Upload full videos to automatically discover viral moments, generate high-retention vertical clips, raw dynamic captions, and export ready-to-post Shorts and TikToks.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

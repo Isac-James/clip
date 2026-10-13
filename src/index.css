@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    background-color: #090a0f;
+    color: #f1f5f9;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
+  }
+}
+
+/* Custom fonts for viral raw styling */
+.font-viral {
+  font-family: 'Anton', impact, sans-serif;
+  letter-spacing: 0.05em;
+}
+
+.font-grotesk {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+/* Text stroke utility classes for viral subtitles */
+.text-stroke-sm {
+  -webkit-text-stroke: 1.5px #000000;
+  text-shadow: 0px 2px 4px rgba(0,0,0,0.9);
+}
+
+.text-stroke-md {
+  -webkit-text-stroke: 2.5px #000000;
+  text-shadow: 0px 3px 6px rgba(0,0,0,0.95);
+}
+
+.text-stroke-lg {
+  -webkit-text-stroke: 3.5px #000000;
+  text-shadow: 0px 4px 10px rgba(0,0,0,1);
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0f1117;
+}
+::-webkit-scrollbar-thumb {
+  background: #272a38;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3b4256;
+}
+
+/* Animated glow pulse */
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.02); }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s infinite ease-in-out;
+}
