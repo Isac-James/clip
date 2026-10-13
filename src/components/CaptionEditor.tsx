@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { X, Plus, Trash2, Sparkles, Check, Type } from "lucide-react";
 import { CaptionWord, ClipData } from "../types";
+import { getDefaultFallbackCaptions } from "../utils/fallbackMoments";
 
 interface CaptionEditorProps {
   clip: ClipData;
@@ -65,14 +66,7 @@ export const CaptionEditor: React.FC<CaptionEditorProps> = ({
       }
     } catch (e) {
       console.warn("Caption generation fallback invoked:", e);
-      // Fallback: generate high-retention cadence word cards for the clip duration
-      const fallbackCards: CaptionWord[] = [
-        { text: "LOOK CLOSELY AT THIS", start: 0.0, end: +(Math.min(clipDuration, 2.5)).toFixed(2), emphasis: true, color: "#facc15" },
-        { text: "BECAUSE NOBODY NOTICES", start: +(Math.min(clipDuration, 2.5)).toFixed(2), end: +(Math.min(clipDuration, 5.5)).toFixed(2), emphasis: false, color: "#ffffff" },
-        { text: "THE EXACT TURNING POINT", start: +(Math.min(clipDuration, 5.5)).toFixed(2), end: +(Math.min(clipDuration, 9.0)).toFixed(2), emphasis: true, color: "#22c55e" },
-        { text: "LET THAT SINK IN", start: +(Math.min(clipDuration, 9.0)).toFixed(2), end: +(clipDuration).toFixed(2), emphasis: false, color: "#ffffff" },
-      ];
-      setCaptions(fallbackCards);
+      setCaptions(getDefaultFallbackCaptions(clipDuration));
     } finally {
       setIsRegenerating(false);
     }

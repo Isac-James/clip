@@ -11,6 +11,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { ClipData, EditingSettings, CaptionWord } from "../types";
+import { getDefaultFallbackCaptions } from "../utils/fallbackMoments";
 
 interface ClipPlayerProps {
   videoUrl: string;
@@ -44,13 +45,15 @@ export const ClipPlayer: React.FC<ClipPlayerProps> = ({
   const relativeTime = Math.max(0, Math.min(clipDuration, currentTime - clip.startTime));
   const progressPercent = Math.min(100, Math.max(0, (relativeTime / clipDuration) * 100));
 
-  // Determine current active caption card
+  // Determine current active caption card (with automatic fallback)
   const activeCaption = useMemo(() => {
-    if (!clip.captions || clip.captions.length === 0) return null;
-    return clip.captions.find(
+    const effectiveCaptions = (clip.captions && clip.captions.length > 0)
+      ? clip.captions
+      : getDefaultFallbackCaptions(clipDuration);
+    return effectiveCaptions.find(
       (c) => relativeTime >= c.start && relativeTime <= c.end
-    );
-  }, [clip.captions, relativeTime]);
+    ) || null;
+  }, [clip.captions, clipDuration, relativeTime]);
 
   // Handle play / pause toggle
   const togglePlay = () => {

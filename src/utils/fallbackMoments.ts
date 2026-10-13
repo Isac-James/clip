@@ -1,4 +1,4 @@
-import { ClipData } from "../types";
+import { ClipData, CaptionWord } from "../types";
 
 export function generateSmartFallbackClips(
   title: string,
@@ -269,4 +269,32 @@ export function generateSmartFallbackClips(
       },
     },
   ];
+}
+
+export function getDefaultFallbackCaptions(duration: number): CaptionWord[] {
+  const cards = [
+    { text: "LOOK CLOSELY AT THIS", emphasis: true, color: "#facc15" },
+    { text: "BECAUSE NOBODY NOTICES", emphasis: false, color: "#ffffff" },
+    { text: "THE EXACT TURNING POINT", emphasis: true, color: "#22c55e" },
+    { text: "WHEN EVERYTHING CHANGED", emphasis: true, color: "#38bdf8" },
+    { text: "REMEMBER THIS LESSON", emphasis: false, color: "#ffffff" },
+    { text: "AND APPLY IT EVERY DAY", emphasis: true, color: "#facc15" },
+  ];
+
+  const totalCards = Math.max(3, Math.floor(duration / 2.8));
+  const cardDur = duration / totalCards;
+  const result: CaptionWord[] = [];
+
+  for (let i = 0; i < totalCards; i++) {
+    const card = cards[i % cards.length];
+    result.push({
+      text: card.text,
+      start: +(i * cardDur).toFixed(2),
+      end: +((i + 1) * cardDur).toFixed(2),
+      emphasis: card.emphasis,
+      color: card.color,
+    });
+  }
+
+  return result;
 }

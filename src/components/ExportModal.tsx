@@ -12,6 +12,7 @@ import {
   Smartphone,
 } from "lucide-react";
 import { ClipData, EditingSettings } from "../types";
+import { getDefaultFallbackCaptions } from "../utils/fallbackMoments";
 
 interface ExportModalProps {
   clip: ClipData;
@@ -46,7 +47,11 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   // Generate SRT subtitles string
   const generateSrt = () => {
     let srt = "";
-    clip.captions.forEach((card, index) => {
+    const effectiveCaptions = (clip.captions && clip.captions.length > 0)
+      ? clip.captions
+      : getDefaultFallbackCaptions(clipDuration);
+
+    effectiveCaptions.forEach((card, index) => {
       const startMs = Math.floor(card.start * 1000);
       const endMs = Math.floor(card.end * 1000);
 
@@ -268,7 +273,11 @@ export const ExportModal: React.FC<ExportModalProps> = ({
       }
 
       // Draw active subtitle card
-      const activeWord = clip.captions?.find(
+      const effectiveCaptions = (clip.captions && clip.captions.length > 0)
+        ? clip.captions
+        : getDefaultFallbackCaptions(clipDuration);
+
+      const activeWord = effectiveCaptions.find(
         (c) => relTime >= c.start && relTime <= c.end
       );
 
