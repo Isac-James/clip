@@ -54,7 +54,7 @@ export const Header: React.FC<HeaderProps> = ({
             className="flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-rose-600 via-red-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 shadow-md shadow-rose-900/30 transition transform hover:-translate-y-0.5 active:translate-y-0"
           >
             <Download className="w-3.5 h-3.5 stroke-[2.5]" />
-            <span>Export Raw Clip</span>
+            <span>Export MP4 Clip</span>
           </button>
         )}
       </div>

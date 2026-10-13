@@ -235,7 +235,7 @@ export default function App() {
                   className="px-4 py-2 rounded-xl bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white font-extrabold text-xs shadow-lg shadow-rose-950/40 flex items-center gap-2 transition"
                 >
                   <Download className="w-4 h-4" />
-                  <span>Export Active Clip</span>
+                  <span>Export MP4 Clip</span>
                 </button>
               </div>
             </div>

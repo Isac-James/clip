@@ -31,6 +31,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
 }) => {
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
+  const [exportFormat, setExportFormat] = useState<"mp4" | "webm">("mp4");
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [downloadFileName, setDownloadFileName] = useState<string>("");
   const [copiedCaption, setCopiedCaption] = useState(false);
@@ -138,9 +139,22 @@ export const ExportModal: React.FC<ExportModalProps> = ({
       console.warn("Audio capture fallback:", e);
     }
 
-    let mimeType = "video/webm;codecs=vp9";
-    if (!MediaRecorder.isTypeSupported(mimeType)) {
-      mimeType = "video/webm";
+    let mimeType = "video/mp4";
+    if (exportFormat === "mp4") {
+      const mp4Candidates = [
+        "video/mp4;codecs=avc1.42E01E,mp4a.40.2",
+        "video/mp4;codecs=avc1",
+        "video/mp4;codecs=h264,aac",
+        "video/mp4",
+        "video/webm;codecs=h264",
+        "video/webm;codecs=vp9",
+        "video/webm",
+      ];
+      mimeType = mp4Candidates.find((type) => MediaRecorder.isTypeSupported(type)) || "video/mp4";
+    } else {
+      mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp9")
+        ? "video/webm;codecs=vp9"
+        : "video/webm";
     }
 
     const recorder = new MediaRecorder(stream, {
@@ -156,11 +170,14 @@ export const ExportModal: React.FC<ExportModalProps> = ({
     };
 
     recorder.onstop = () => {
-      const blob = new Blob(recordedChunksRef.current, { type: "video/webm" });
+      const isMp4 = exportFormat === "mp4";
+      const outputType = isMp4 ? "video/mp4" : "video/webm";
+      const ext = isMp4 ? "mp4" : "webm";
+      const blob = new Blob(recordedChunksRef.current, { type: outputType });
       const url = URL.createObjectURL(blob);
       setDownloadUrl(url);
       setDownloadFileName(
-        `${clip.title.replace(/\s+/g, "_")}_${settings.aspectRatio.replace(":", "x")}_raw_clip.webm`
+        `${clip.title.replace(/\s+/g, "_")}_${settings.aspectRatio.replace(":", "x")}_raw_clip.${ext}`
       );
       setIsExporting(false);
       setExportProgress(100);
@@ -377,13 +394,59 @@ export const ExportModal: React.FC<ExportModalProps> = ({
             </div>
           </div>
 
+          {/* Format Selector: MP4 vs WebM */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">
+                Video Format
+              </label>
+              <span className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3" /> MP4 Standard for TikTok & Reels
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setExportFormat("mp4")}
+                className={`p-2.5 rounded-xl border flex items-center justify-between transition ${
+                  exportFormat === "mp4"
+                    ? "border-rose-500 bg-rose-950/40 text-white ring-1 ring-rose-500"
+                    : "border-slate-800 bg-slate-950/60 text-slate-400 hover:border-slate-700 hover:text-white"
+                }`}
+              >
+                <div className="text-left">
+                  <span className="text-xs font-black block text-white">MP4 Video (.mp4)</span>
+                  <span className="text-[10px] text-slate-400">Universal standard</span>
+                </div>
+                <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300">
+                  Recommended
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setExportFormat("webm")}
+                className={`p-2.5 rounded-xl border flex items-center justify-between transition ${
+                  exportFormat === "webm"
+                    ? "border-rose-500 bg-rose-950/40 text-white ring-1 ring-rose-500"
+                    : "border-slate-800 bg-slate-950/60 text-slate-400 hover:border-slate-700 hover:text-white"
+                }`}
+              >
+                <div className="text-left">
+                  <span className="text-xs font-black block text-white">WebM Video (.webm)</span>
+                  <span className="text-[10px] text-slate-400">Web compression</span>
+                </div>
+              </button>
+            </div>
+          </div>
+
           {/* Render progress / actions */}
           {isExporting ? (
             <div className="p-5 rounded-xl bg-slate-950 border border-rose-500/30 text-center space-y-3">
               <Loader2 className="w-8 h-8 text-rose-400 animate-spin mx-auto" />
               <div className="space-y-1">
                 <p className="text-xs font-bold text-white">
-                  Rendering {settings.aspectRatio} Vertical Raw Video... {exportProgress}%
+                  Rendering {settings.aspectRatio} Vertical {exportFormat.toUpperCase()} Video... {exportProgress}%
                 </p>
                 <p className="text-[11px] text-slate-400">
                   Burning in Hormozi captions, hook headline & retention progress bar.
@@ -400,7 +463,9 @@ export const ExportModal: React.FC<ExportModalProps> = ({
             <div className="p-4 rounded-xl bg-emerald-950/30 border border-emerald-500/40 text-center space-y-3">
               <CheckCircle2 className="w-8 h-8 text-emerald-400 mx-auto" />
               <div className="space-y-1">
-                <p className="text-sm font-bold text-white">Clip Render Complete!</p>
+                <p className="text-sm font-bold text-white">
+                  {exportFormat.toUpperCase()} Video Render Complete!
+                </p>
                 <p className="text-xs text-slate-300">
                   Ready to publish on TikTok, Instagram Reels, and YouTube Shorts.
                 </p>
@@ -410,7 +475,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                 download={downloadFileName}
                 className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs shadow-lg transition"
               >
-                <Download className="w-4 h-4" /> Download Edited Video ({downloadFileName})
+                <Download className="w-4 h-4" /> Download {exportFormat.toUpperCase()} Video ({downloadFileName})
               </a>
             </div>
           ) : (
@@ -420,7 +485,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
               className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-rose-600 via-red-600 to-amber-500 hover:from-rose-500 hover:to-amber-400 text-white font-black text-sm tracking-wide shadow-lg shadow-rose-950/40 flex items-center justify-center gap-2 transition"
             >
               <Film className="w-4 h-4 fill-white" />
-              <span>RENDER & DOWNLOAD RAW VERTICAL VIDEO</span>
+              <span>RENDER & DOWNLOAD RAW VERTICAL {exportFormat.toUpperCase()}</span>
             </button>
           )}
 
